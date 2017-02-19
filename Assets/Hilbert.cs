@@ -1,10 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Generate a Hilbert Curve attached to whatever gameobject this is attached to
+/// Mostly an exercise in direction, recursion, and programming
+/// </summary>
 public class Hilbert : MonoBehaviour {
 
-    public int initialRotation;
     public int size;
+    public int initialRotation;
     private Vector3[] points;
     private int i;
 
