@@ -3,8 +3,11 @@ using System.Collections;
 
 public class Hilbert : MonoBehaviour {
 
-    public int n;
     public int initialRotation;
+    public int size;
+    private Vector3[] points;
+    private int i;
+
     public const int
         UP = 0,
         RIGHT = 1,
@@ -13,77 +16,69 @@ public class Hilbert : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        Generate(n, 0, 0, initialRotation);
+        points = new Vector3[(int)Mathf.Pow(4, size)];
+        i = 0;
+        Generate(size, 0, 0, initialRotation);
 	}
 
-    void Generate(int n, int x, int y, float r)
+    void Generate(int n, int x, int y, int r)
     {
         if(r < 0) { r += 4; }
         if(r >= 4) { r -= 4; }
-        if(n == 0) { return; }
+
+        if(n == 0)
+        {
+            Line(new Vector2(x, y));
+            return;
+        }
+
         int s = (int)Mathf.Pow(2, n - 1) - 1; // width of *smaller* curve
         int o = s + 1;
 
-        int w = (int)Mathf.Pow(2, n) - 1; // width of *this* curve
-
-        Vector2 up = new Vector2(0, 1);
-        Vector2 right = new Vector2(1, 0);
-
-        if (r == UP)
-        {
-            Generate(n - 1, x, y + o, r); // top left
-            Generate(n - 1, x + o, y + o, r); // top right
-            Generate(n - 1, x, y, r + 1); // bottom left
-            Generate(n - 1, x + o, y, r - 1); // bottom right
-
-            Line(new Vector2(x, y + s), up); // left line
-            Line(new Vector2(x + s, y + o), right); // mid line
-            Line(new Vector2(x + w, y + o), -up); // right line
+        switch (r) {
+            case (UP):
+                Generate(n - 1, x, y, RIGHT); // bottom left
+                Generate(n - 1, x, y + o, UP); // top left
+                Generate(n - 1, x + o, y + o, UP); // top right
+                Generate(n - 1, x + o, y, LEFT); // bottom right
+                break;
+            case (RIGHT):
+                Generate(n - 1, x, y, UP); // bottom left
+                Generate(n - 1, x + o, y, RIGHT); // bottom right
+                Generate(n - 1, x + o, y + o, RIGHT); // top right
+                Generate(n - 1, x, y + o, DOWN); // top left
+                break;
+            case (DOWN):
+                Generate(n - 1, x + o, y + o, LEFT); // top right
+                Generate(n - 1, x + o, y, DOWN); // bottom right
+                Generate(n - 1, x, y, DOWN); // bottom left
+                Generate(n - 1, x, y + o, RIGHT); // top left
+                break;
+            case (LEFT):
+                Generate(n - 1, x + o, y + o, DOWN); // top right
+                Generate(n - 1, x, y + o, LEFT); // top left
+                Generate(n - 1, x, y, LEFT); // bottom left
+                Generate(n - 1, x + o, y, UP); // bottom right
+                break;
         }
 
-        else if (r == RIGHT)
+        if (n == size)
         {
-            Generate(n - 1, x, y + o, r + 1); // top left
-            Generate(n - 1, x + o, y + o, r); // top right
-            Generate(n - 1, x, y, r - 1); // bottom left
-            Generate(n - 1, x + o, y, r); // bottom right
-
-            Line(new Vector2(x + o, y + w), -right); // top line
-            Line(new Vector2(x + o, y + o), -up); // mid line
-            Line(new Vector2(x + o, y), -right); // bottom line
+            GameObject go = new GameObject();
+            LineRenderer render = go.AddComponent<LineRenderer>();
+            render.SetVertexCount(points.Length);
+            render.SetPositions(points);
+            render.SetWidth(0.1f, 0.1f);
         }
-
-        else if (r == DOWN)
-        {
-            Generate(n - 1, x, y + o, r - 1); // top left
-            Generate(n - 1, x + o, y + o, r + 1); // top right
-            Generate(n - 1, x, y, r); // bottom left
-            Generate(n - 1, x + o, y, r); // bottom right
-
-            Line(new Vector2(x + w, y + s), up); // right line
-            Line(new Vector2(x + o, y + s), -right); // mid line
-            Line(new Vector2(x, y + s), up); // left line
-        }
-
-        else if(r == LEFT)
-        {
-            Generate(n - 1, x, y + o, r); // top left
-            Generate(n - 1, x + o, y + o, r - 1); // top right
-            Generate(n - 1, x, y, r); // bottom left
-            Generate(n - 1, x + o, y, r + 1); // bottom right
-
-            Line(new Vector2(x + s, y), right); // bottom line
-            Line(new Vector2(x + s, y + s), up); // mid line
-            Line(new Vector2(x + s, y + w), right); // top line
-        }
-        
     }
 
-    void Line(Vector2 start, Vector2 length)
+    void Line(Vector2 start)
     {
-        GameObject go = new GameObject();
-        LineRenderer r = go.AddComponent<LineRenderer>();
-        r.SetPositions(new Vector3[]{start, start + length});
-        r.SetWidth(0.1f, 0.1f);
+        points[i] = start;
+        i++;
+        //GameObject go = new GameObject();
+        //LineRenderer r = go.AddComponent<LineRenderer>();
+        //r.SetPositions(new Vector3[]{start, start + length});
+        //r.SetWidth(0.1f, 0.1f);
     }
 }
