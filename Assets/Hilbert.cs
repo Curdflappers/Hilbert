@@ -27,17 +27,13 @@ public class Hilbert : MonoBehaviour {
 
     void Generate(int n, int x, int y, int r)
     {
-        if(r < 0) { r += 4; }
-        if(r >= 4) { r -= 4; }
-
         if(n == 0)
         {
-            Line(new Vector2(x, y));
+            points[i++] = new Vector2(x, y);
             return;
         }
 
-        int s = (int)Mathf.Pow(2, n - 1) - 1; // width of *smaller* curve
-        int o = s + 1;
+        int o = (int)Mathf.Pow(2, n - 1); // width of *smaller* curve
 
         switch (r) {
             case (UP):
@@ -66,23 +62,15 @@ public class Hilbert : MonoBehaviour {
                 break;
         }
 
-        if (n == size)
-        {
-            GameObject go = new GameObject();
-            LineRenderer render = go.AddComponent<LineRenderer>();
-            render.SetVertexCount(points.Length);
-            render.SetPositions(points);
-            render.SetWidth(0.1f, 0.1f);
-        }
+        if (n == size) { CreateObject(); }
     }
 
-    void Line(Vector2 start)
+    private void CreateObject()
     {
-        points[i] = start;
-        i++;
-        //GameObject go = new GameObject();
-        //LineRenderer r = go.AddComponent<LineRenderer>();
-        //r.SetPositions(new Vector3[]{start, start + length});
-        //r.SetWidth(0.1f, 0.1f);
+        GameObject go = new GameObject();
+        LineRenderer render = go.AddComponent<LineRenderer>();
+        render.SetVertexCount(points.Length);
+        render.SetPositions(points);
+        render.SetWidth(0.1f, 0.1f);
     }
 }
